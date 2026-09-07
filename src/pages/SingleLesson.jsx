@@ -1,57 +1,60 @@
 import { useParams, Link } from "react-router-dom";
 import { useProgress } from "../context/ProgressContext";
-import { getItem, getAdjacentItems } from "../data/learningData";
+import { getItem, getAdjacentItems, getCategoryConfig } from "../data/learningData";
 import SignVisual from "../components/SignVisual";
+import NotFound from "./NotFound";
 
-function LetterLesson() {
-  const { letter } = useParams();
-  const currentLetter = (letter || "A").toUpperCase();
-
-  const item = getItem("alphabets", currentLetter);
-  const { previous, next } = getAdjacentItems("alphabets", currentLetter);
+function SingleLesson() {
+  const { category, id } = useParams();
+  const config = getCategoryConfig(category);
+  const item = getItem(category, id);
+  const { previous, next } = getAdjacentItems(category, id);
 
   const { isLearned, toggleLearned } = useProgress();
-  const learned = isLearned("alphabets", currentLetter);
+
+  if (!config || !item) {
+    return <NotFound />;
+  }
+
+  const learned = isLearned(category, item.id);
 
   const handleToggle = () => {
-    toggleLearned("alphabets", currentLetter);
+    toggleLearned(category, item.id);
   };
 
   return (
     <main className="single-lesson-layout">
       {/* Top Breadcrumb */}
       <nav className="lesson-top-nav">
-        <Link to="/learn/alphabets" className="breadcrumb-link">
-          ← Back to Alphabets
+        <Link to={config.path} className="breadcrumb-link">
+          ← Back to {config.title}
         </Link>
-        <span className="lesson-badge-category">ALPHABETS</span>
+        <span className="lesson-badge-category">{config.title.toUpperCase()}</span>
       </nav>
 
       <div className="single-lesson-card-wrapper">
-        {/* 1. The Focused Sign Visual */}
+        {/* 1. Visual Card */}
         <div className="lesson-visual-col">
           <SignVisual
-            symbol={currentLetter}
-            title={`Letter ${currentLetter}`}
-            category="alphabets"
+            symbol={item.symbol}
+            title={item.title}
+            category={category}
             isLearned={learned}
           />
         </div>
 
-        {/* 2-5. Sign Name, Instruction, Tip & Primary Action */}
+        {/* 2-5. Title, Guidance, Tip & Action */}
         <div className="lesson-content-col">
           <div className="lesson-title-area">
-            <span className="lesson-small-label">MANUAL SIGN</span>
-            <h1>Letter {currentLetter}</h1>
+            <span className="lesson-small-label">{config.title.toUpperCase()}</span>
+            <h1>{item.title}</h1>
           </div>
 
           <div className="lesson-instruction-text">
-            <p>
-              {item ? item.postureGuidance : "Form the manual alphabet handshape with your palm facing forward."}
-            </p>
+            <p>{item.postureGuidance}</p>
           </div>
 
-          {item?.practiceTip && (
+          {item.practiceTip && (
             <div className="lesson-tip-pill">
               <span>💡 {item.practiceTip}</span>
             </div>
@@ -68,7 +71,7 @@ function LetterLesson() {
             </button>
 
             <Link
-              to={`/practice?category=alphabets&sign=${currentLetter}`}
+              to={`/practice?category=${category}&sign=${encodeURIComponent(item.id)}`}
               className="secondary-practice-link"
             >
               Practice in Camera Mirror →
@@ -80,20 +83,20 @@ function LetterLesson() {
       {/* 6. Previous / Next Navigation */}
       <footer className="single-lesson-footer">
         {previous ? (
-          <Link to={`/learn/alphabets/${previous.id}`} className="footer-nav-btn prev">
-            ← Letter {previous.id}
+          <Link to={`/learn/${category}/${previous.id}`} className="footer-nav-btn prev">
+            ← {previous.title}
           </Link>
         ) : (
           <span className="footer-nav-btn disabled"></span>
         )}
 
-        <Link to="/learn/alphabets" className="footer-overview-link">
-          All Alphabets
+        <Link to={config.path} className="footer-overview-link">
+          All {config.title}
         </Link>
 
         {next ? (
-          <Link to={`/learn/alphabets/${next.id}`} className="footer-nav-btn next">
-            Letter {next.id} →
+          <Link to={`/learn/${category}/${next.id}`} className="footer-nav-btn next">
+            {next.title} →
           </Link>
         ) : (
           <span className="footer-nav-btn disabled"></span>
@@ -103,4 +106,4 @@ function LetterLesson() {
   );
 }
 
-export default LetterLesson;
+export default SingleLesson;
