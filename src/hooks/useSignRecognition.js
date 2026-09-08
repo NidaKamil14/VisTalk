@@ -71,14 +71,23 @@ export function useSignRecognition(targetSign = null) {
     };
   }, [isCameraActive, stream]);
 
+  // Track latest targetSign and prediction concurrency with refs to avoid timer thrashing
+  const targetSignRef = useRef(targetSign);
+  useEffect(() => {
+    targetSignRef.current = targetSign;
+  }, [targetSign]);
+
+  const isPredictingRef = useRef(false);
+
   // Capture a single frame from video and send to prediction API
   const captureAndPredict = useCallback(async () => {
-    if (!videoRef.current || !isCameraActive || isPredicting) return null;
+    if (!videoRef.current || !isCameraActive || isPredictingRef.current) return null;
     
     const video = videoRef.current;
     if (video.readyState < 2 || video.videoWidth === 0) return null;
 
     try {
+      isPredictingRef.current = true;
       setIsPredicting(true);
 
       // Create off-screen canvas if not present
@@ -114,7 +123,8 @@ export function useSignRecognition(targetSign = null) {
         const data = await response.json();
         if (data.success) {
           setIsServerOnline(true);
-          const targetChar = (targetSign?.symbol || targetSign?.title || targetSign?.id || "").replace(/Letter\s*/i, "").trim().toUpperCase();
+          const currentTarget = targetSignRef.current;
+          const targetChar = (currentTarget?.symbol || currentTarget?.title || currentTarget?.id || "").replace(/Letter\s*/i, "").trim().toUpperCase();
           const predChar = data.prediction.toUpperCase();
           const isTargetMatch = Boolean(targetChar && predChar === targetChar);
 
@@ -140,10 +150,11 @@ export function useSignRecognition(targetSign = null) {
     } catch (err) {
       console.warn("Prediction frame error:", err);
     } finally {
+      isPredictingRef.current = false;
       setIsPredicting(false);
     }
     return null;
-  }, [isCameraActive, isPredicting, targetSign]);
+  }, [isCameraActive]);
 
   // Continuous Recognition Loop when Camera is Active
   useEffect(() => {
