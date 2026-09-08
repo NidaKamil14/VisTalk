@@ -10,7 +10,7 @@ function SingleLesson() {
   const item = getItem(category, id);
   const { previous, next } = getAdjacentItems(category, id);
 
-  const { isLearned, toggleLearned } = useProgress();
+  const { isLearned, masterSign, toggleLearned } = useProgress();
 
   if (!config || !item) {
     return <NotFound />;
@@ -18,88 +18,90 @@ function SingleLesson() {
 
   const learned = isLearned(category, item.id);
 
-  const handleToggle = () => {
-    toggleLearned(category, item.id);
+  const handleMaster = () => {
+    if (!learned) {
+      masterSign(category, item.id, item.title);
+    } else {
+      toggleLearned(category, item.id, item.title);
+    }
   };
 
   return (
-    <main className="single-lesson-layout">
-      {/* Top Breadcrumb */}
-      <nav className="lesson-top-nav">
-        <Link to={config.path} className="breadcrumb-link">
-          ← Back to {config.title}
+    <main className="game-lesson-page">
+      {/* Top Roadmap Breadcrumb */}
+      <nav className="game-lesson-topbar">
+        <Link to={`/learn/${category}`} className="game-back-btn">
+          ← Back to Roadmap
         </Link>
-        <span className="lesson-badge-category">{config.title.toUpperCase()}</span>
+        <span className="game-level-tag">{config.title.toUpperCase()} ROADMAP</span>
       </nav>
 
-      <div className="single-lesson-card-wrapper">
-        {/* 1. Visual Card */}
-        <div className="lesson-visual-col">
+      {/* The Visual Dominates the Page */}
+      <div className="game-lesson-visual-centerpiece">
+        <div className="game-sign-display-card">
           <SignVisual
             symbol={item.symbol}
             title={item.title}
             category={category}
             isLearned={learned}
           />
+          {learned && (
+            <div className="sign-xp-awarded-pill">
+              <span>✓ +10 XP Mastered</span>
+            </div>
+          )}
         </div>
 
-        {/* 2-5. Title, Guidance, Tip & Action */}
-        <div className="lesson-content-col">
-          <div className="lesson-title-area">
-            <span className="lesson-small-label">{config.title.toUpperCase()}</span>
-            <h1>{item.title}</h1>
-          </div>
-
-          <div className="lesson-instruction-text">
-            <p>{item.postureGuidance}</p>
-          </div>
-
+        {/* Minimal 1-sentence guidance */}
+        <div className="game-lesson-text">
+          <h1>{item.title}</h1>
+          <p className="lesson-one-liner">{item.postureGuidance}</p>
           {item.practiceTip && (
-            <div className="lesson-tip-pill">
+            <div className="lesson-subtle-tip">
               <span>💡 {item.practiceTip}</span>
             </div>
           )}
+        </div>
 
-          {/* Primary Action Button */}
-          <div className="lesson-actions-area">
-            <button
-              type="button"
-              className={`primary-learn-btn ${learned ? "is-learned" : ""}`}
-              onClick={handleToggle}
-            >
-              {learned ? "✓ Mastered" : "Mark as Learned"}
-            </button>
+        {/* Primary Actions: Practice This Sign & Mark Complete */}
+        <div className="game-lesson-actions">
+          <Link
+            to={`/practice?category=${category}&sign=${encodeURIComponent(item.id)}`}
+            className="game-primary-practice-btn"
+          >
+            Practice This Sign 📹 →
+          </Link>
 
-            <Link
-              to={`/practice?category=${category}&sign=${encodeURIComponent(item.id)}`}
-              className="secondary-practice-link"
-            >
-              Practice in Camera Mirror →
-            </Link>
-          </div>
+          <button
+            type="button"
+            className={`game-secondary-complete-btn ${learned ? "is-mastered" : ""}`}
+            onClick={handleMaster}
+          >
+            {learned ? "✓ Mastered (+10 XP)" : "Mark Complete (+10 XP) ✓"}
+          </button>
         </div>
       </div>
 
-      {/* 6. Previous / Next Navigation */}
-      <footer className="single-lesson-footer">
+      {/* Sequential Previous / Next */}
+      <footer className="game-lesson-stepper">
         {previous ? (
-          <Link to={`/learn/${category}/${previous.id}`} className="footer-nav-btn prev">
+          <Link to={`/learn/${category}/${previous.id}`} className="stepper-link prev">
             ← {previous.title}
           </Link>
         ) : (
-          <span className="footer-nav-btn disabled"></span>
+          <span className="stepper-link disabled"></span>
         )}
 
-        <Link to={config.path} className="footer-overview-link">
-          All {config.title}
+        <Link to={`/learn/${category}`} className="stepper-link roadmap">
+          Roadmap
         </Link>
 
         {next ? (
-          <Link to={`/learn/${category}/${next.id}`} className="footer-nav-btn next">
+          <Link to={`/learn/${category}/${next.id}`} className="stepper-link next">
             {next.title} →
           </Link>
         ) : (
-          <span className="footer-nav-btn disabled"></span>
+          <span className="stepper-link disabled"></span>
         )}
       </footer>
     </main>

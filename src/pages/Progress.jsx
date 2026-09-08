@@ -9,14 +9,14 @@ function Progress() {
   const { progress, getStats, resetProgress } = useProgress();
   const [confirmReset, setConfirmReset] = useState(false);
 
-  const { overall, categoryStats, streakDays } = getStats();
+  const { overall, categoryStats, xp, streakDays } = getStats();
 
   const handleReset = () => {
     resetProgress();
     setConfirmReset(false);
   };
 
-  // Collect all mastered items across categories for visual pills
+  // Collect all mastered signs across categories
   const masteredList = [];
   CATEGORIES.forEach((cat) => {
     const ids = progress[cat.id] || [];
@@ -29,82 +29,88 @@ function Progress() {
   });
 
   return (
-    <main className="progress-clean-page">
-      <header className="progress-clean-header">
+    <main className="game-progress-page">
+      <header className="game-progress-header">
         <span className="section-eyebrow">YOUR JOURNEY</span>
         <h1>
           {isAuthenticated && currentUser
-            ? `${currentUser.name.split(" ")[0]}'s Progress`
-            : "Your Learning Progress"}
+            ? `${currentUser.name.split(" ")[0]}'s Learning Stats`
+            : "Your Learning Stats"}
         </h1>
-        <p>Track your sign language fluency, daily practice streak, and mastered signs.</p>
-
-        {!isAuthenticated && (
-          <div className="guest-sync-card">
-            <span>Progress is currently stored locally in this browser.</span>
-            <Link to="/signup" className="guest-sync-link">
-              Create account to sync →
-            </Link>
-          </div>
-        )}
+        <p>Visual breakdown of your sign language fluency and mastery.</p>
       </header>
 
-      {/* Visual KPI Cards */}
-      <section className="progress-kpi-grid">
-        <div className="kpi-card">
-          <span className="kpi-label">TOTAL MASTERED</span>
-          <div className="kpi-value">{overall.count}</div>
-          <span className="kpi-foot">out of {overall.total} signs</span>
-        </div>
-
-        <div className="kpi-card">
-          <span className="kpi-label">FLUENCY</span>
-          <div className="kpi-value">{overall.percentage}%</div>
-          <div className="kpi-mini-track">
-            <div className="kpi-mini-fill" style={{ width: `${overall.percentage}%` }}></div>
+      {/* Visual Gamified KPI Hero */}
+      <section className="progress-trophy-banner">
+        <div className="trophy-badge-box">
+          <span className="trophy-emoji">⚡</span>
+          <div className="trophy-details">
+            <span className="trophy-label">TOTAL REWARD XP</span>
+            <h2>{xp} XP</h2>
+            <small>Earned strictly through verified sign mastery</small>
           </div>
         </div>
 
-        <div className="kpi-card">
-          <span className="kpi-label">PRACTICE STREAK</span>
-          <div className="kpi-value">{streakDays} {streakDays === 1 ? "Day" : "Days"}</div>
-          <span className="kpi-foot">Active daily learning</span>
+        <div className="trophy-stats-split">
+          <div className="split-metric">
+            <span className="metric-num">{overall.count}</span>
+            <span className="metric-tag">Signs Mastered</span>
+          </div>
+          <div className="split-divider"></div>
+          <div className="split-metric">
+            <span className="metric-num">{streakDays}</span>
+            <span className="metric-tag">Days Streak</span>
+          </div>
+          <div className="split-divider"></div>
+          <div className="split-metric">
+            <span className="metric-num">{overall.percentage}%</span>
+            <span className="metric-tag">Fluency</span>
+          </div>
         </div>
       </section>
 
-      {/* Visual Category Bars */}
-      <section className="progress-category-bars-section">
-        <h2>Category Fluency</h2>
-        <div className="category-bars-list">
+      {/* Visual Category Gauges */}
+      <section className="progress-category-gauges">
+        <h2>Curriculum Paths</h2>
+        <div className="category-gauges-grid">
           {categoryStats.map((cat) => (
-            <div className="category-bar-row" key={cat.id}>
-              <div className="bar-row-info">
-                <span className="bar-cat-name">{cat.title}</span>
-                <span className="bar-cat-count">
-                  {cat.count} / {cat.total} ({cat.percentage}%)
+            <div className="gauge-card" key={cat.id}>
+              <div className="gauge-header">
+                <span className="gauge-name">{cat.title}</span>
+                <span className="gauge-count">
+                  {cat.count} / {cat.total}
                 </span>
               </div>
-              <div className="bar-track">
-                <div className="bar-fill" style={{ width: `${cat.percentage}%` }}></div>
+              <div className="gauge-track">
+                <div
+                  className="gauge-fill"
+                  style={{ width: `${cat.percentage}%` }}
+                ></div>
+              </div>
+              <div className="gauge-footer">
+                <small>{cat.percentage}% complete</small>
+                <Link to={`/learn/${cat.id}`} className="gauge-link">
+                  Open Roadmap →
+                </Link>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Mastered Signs Badge Cloud */}
-      <section className="mastered-cloud-section">
-        <h2>Mastered Signs ({masteredList.length})</h2>
+      {/* Mastered Signs Badge Gallery */}
+      <section className="progress-mastered-gallery">
+        <h2>Mastered Signs Collection ({masteredList.length})</h2>
 
         {masteredList.length === 0 ? (
-          <div className="empty-mastered-state">
-            <p>You haven't marked any signs as learned yet.</p>
+          <div className="empty-collection-box">
+            <p>You haven't mastered any signs yet.</p>
             <Link to="/learn" className="hero-button">
-              Start Learning Now →
+              Start Level 1 on Roadmap →
             </Link>
           </div>
         ) : (
-          <div className="mastered-pills-cloud">
+          <div className="mastered-pills-row">
             {masteredList.map((item) => (
               <Link
                 key={`${item.categoryId}-${item.id}`}
@@ -113,31 +119,40 @@ function Progress() {
                     ? `/learn/alphabets/${item.id}`
                     : `/learn/${item.categoryId}/${item.id}`
                 }
-                className="mastered-pill-item"
+                className="mastered-sign-pill"
+                title={`Review ${item.title}`}
               >
-                <span className="pill-symbol">{item.symbol}</span>
-                <span className="pill-name">{item.title}</span>
-                <span className="pill-check">✓</span>
+                <span className="pill-glyph">{item.symbol}</span>
+                <span className="pill-title">{item.title}</span>
+                <span className="pill-award">✓</span>
               </Link>
             ))}
           </div>
         )}
       </section>
 
-      {/* Minimal Footer Action / Reset */}
-      <footer className="progress-clean-footer">
+      {/* Subtle Reset History Settings */}
+      <footer className="progress-reset-zone">
         {confirmReset ? (
-          <div className="reset-confirm-box">
-            <span>Reset all progress?</span>
+          <div className="confirm-reset-row">
+            <span>Are you sure? This resets all earned XP and progress.</span>
             <button type="button" className="btn-confirm-yes" onClick={handleReset}>
               Yes, Reset
             </button>
-            <button type="button" className="btn-confirm-cancel" onClick={() => setConfirmReset(false)}>
+            <button
+              type="button"
+              className="btn-confirm-cancel"
+              onClick={() => setConfirmReset(false)}
+            >
               Cancel
             </button>
           </div>
         ) : (
-          <button type="button" className="btn-reset-ghost" onClick={() => setConfirmReset(true)}>
+          <button
+            type="button"
+            className="btn-reset-link"
+            onClick={() => setConfirmReset(true)}
+          >
             Reset Progress
           </button>
         )}

@@ -3,7 +3,6 @@ import { useSearchParams, Link } from "react-router-dom";
 import { useProgress } from "../context/ProgressContext";
 import useSignRecognition from "../hooks/useSignRecognition";
 import {
-  CATEGORIES,
   getItemsByCategory,
   getItem,
   ALPHABETS_DATA,
@@ -11,13 +10,11 @@ import {
 
 function Practice() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialCategory = searchParams.get("category") || "alphabets";
-  const initialSign = searchParams.get("sign") || "A";
+  const categoryParam = searchParams.get("category") || "alphabets";
+  const signParam = searchParams.get("sign");
 
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
-  const [selectedSignId, setSelectedSignId] = useState(initialSign);
+  const { isLearned, masterSign } = useProgress();
 
-  const { isLearned, toggleLearned } = useProgress();
   const {
     videoRef,
     isCameraActive,
@@ -27,166 +24,112 @@ function Practice() {
     toggleCamera,
   } = useSignRecognition();
 
-  // Retrieve current category items and selected sign
-  const currentCategoryItems = useMemo(() => {
-    return getItemsByCategory(selectedCategory);
-  }, [selectedCategory]);
+  // Category items
+  const categoryItems = useMemo(() => {
+    return getItemsByCategory(categoryParam);
+  }, [categoryParam]);
 
-  const currentItem = useMemo(() => {
-    const found = getItem(selectedCategory, selectedSignId);
-    return found || currentCategoryItems[0] || ALPHABETS_DATA[0];
-  }, [selectedCategory, selectedSignId, currentCategoryItems]);
-
-  const currentIndex = useMemo(() => {
-    return currentCategoryItems.findIndex(
-      (item) => String(item.id).toLowerCase() === String(currentItem.id).toLowerCase()
-    );
-  }, [currentCategoryItems, currentItem]);
-
-  const isCurrentLearned = isLearned(selectedCategory, currentItem.id);
-
-  const handleCategoryChange = (catId) => {
-    setSelectedCategory(catId);
-    const items = getItemsByCategory(catId);
-    if (items.length > 0) {
-      setSelectedSignId(items[0].id);
-      setSearchParams({ category: catId, sign: items[0].id });
+  // Target sign: default to passed sign or the first unlearned sign
+  const targetSign = useMemo(() => {
+    if (signParam) {
+      const found = getItem(categoryParam, signParam);
+      if (found) return found;
     }
-  };
+    const nextUnlearned = categoryItems.find((it) => !isLearned(categoryParam, it.id));
+    return nextUnlearned || categoryItems[0] || ALPHABETS_DATA[0];
+  }, [categoryParam, signParam, categoryItems, isLearned]);
 
-  const handleSignSelect = (e) => {
-    const newId = e.target.value;
-    setSelectedSignId(newId);
-    setSearchParams({ category: selectedCategory, sign: newId });
-  };
+  const targetIndex = useMemo(() => {
+    return categoryItems.findIndex(
+      (it) => String(it.id).toLowerCase() === String(targetSign.id).toLowerCase()
+    );
+  }, [categoryItems, targetSign]);
 
+  const alreadyMastered = isLearned(categoryParam, targetSign.id);
+
+  // Verification state (scaffolded for Phase 2 MediaPipe integration)
+  const [verificationResult, setVerificationResult] = useState(null);
+
+  // Transition to next sign
   const handleNextSign = () => {
-    const nextIdx = (currentIndex + 1) % currentCategoryItems.length;
-    const nextItem = currentCategoryItems[nextIdx];
-    setSelectedSignId(nextItem.id);
-    setSearchParams({ category: selectedCategory, sign: nextItem.id });
+    setVerificationResult(null);
+    const nextIdx = (targetIndex + 1) % categoryItems.length;
+    const nextItem = categoryItems[nextIdx];
+    setSearchParams({ category: categoryParam, sign: nextItem.id });
   };
 
-  const handlePrevSign = () => {
-    const prevIdx =
-      currentIndex === 0 ? currentCategoryItems.length - 1 : currentIndex - 1;
-    const prevItem = currentCategoryItems[prevIdx];
-    setSelectedSignId(prevItem.id);
-    setSearchParams({ category: selectedCategory, sign: prevItem.id });
+  // Phase 2 Ready Verification Slot:
+  // In Task 2, this function will be triggered automatically when the MediaPipe + ML
+  // classifier detects the correct hand landmark posture with >85% confidence.
+  const handleVerifySign = () => {
+    const { newlyMastered, xpEarned } = masterSign(
+      categoryParam,
+      targetSign.id,
+      targetSign.title
+    );
+
+    setVerificationResult({
+      success: true,
+      newlyMastered,
+      xpEarned,
+    });
   };
 
   return (
-    <main className="practice-activity-page">
-      <header className="practice-activity-header">
-        <span className="section-eyebrow">PRACTICE STUDIO</span>
-        <h1>Mirror & Practice</h1>
-        <p>Align your hand position with the reference sign using your webcam mirror.</p>
+    <main className="game-practice-page">
+      {/* Top Bar with Roadmap Link & Target Status */}
+      <header className="practice-top-banner">
+        <Link
+          to={categoryParam === "alphabets" ? "/learn/alphabets" : `/learn/${categoryParam}`}
+          className="practice-back-btn"
+        >
+          ← Back to Roadmap
+        </Link>
 
-        {/* Minimal Category & Sign Selector Toolbar */}
-        <div className="practice-toolbar">
-          <div className="practice-cat-selector">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat.id}
-                type="button"
-                className={`toolbar-cat-btn ${selectedCategory === cat.id ? "active" : ""}`}
-                onClick={() => handleCategoryChange(cat.id)}
-              >
-                {cat.title}
-              </button>
-            ))}
-          </div>
-
-          <div className="practice-sign-stepper">
-            <button
-              type="button"
-              className="stepper-btn"
-              onClick={handlePrevSign}
-              title="Previous sign"
-            >
-              ←
-            </button>
-
-            <select
-              value={currentItem.id}
-              onChange={handleSignSelect}
-              className="practice-sign-dropdown"
-              aria-label="Select sign to practice"
-            >
-              {currentCategoryItems.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.title} {isLearned(selectedCategory, item.id) ? "✓" : ""}
-                </option>
-              ))}
-            </select>
-
-            <button
-              type="button"
-              className="stepper-btn"
-              onClick={handleNextSign}
-              title="Next sign"
-            >
-              →
-            </button>
-          </div>
+        <div className="practice-target-indicator">
+          <span className="target-label">TARGET:</span>
+          <strong>{targetSign.title}</strong>
         </div>
+
+        <span className="practice-xp-tag">
+          {alreadyMastered ? "✓ Mastered" : "+10 XP upon mastery"}
+        </span>
       </header>
 
-      {/* Main Activity Canvas: Reference <-> Camera */}
-      <div className="practice-canvas-grid">
-        {/* Left: Sign Reference Card */}
-        <div className="practice-reference-frame">
-          <div className="frame-top-tag">
-            <span>REFERENCE SIGN</span>
-            {isCurrentLearned && <span className="frame-mastered-tag">✓ Mastered</span>}
+      {/* Main Practice Stage: Target Reference <-> Camera Mirror */}
+      <div className="practice-stage-grid">
+        {/* Left: The Target Sign to Mirror */}
+        <div className="practice-target-card">
+          <div className="target-card-top">
+            <span className="target-pill">REFERENCE SIGN</span>
+            {alreadyMastered && <span className="mastered-dot-tag">✓ Mastered</span>}
           </div>
 
-          <div className="frame-symbol-box">
-            <span className="frame-symbol">{currentItem.symbol}</span>
+          <div className="target-symbol-showcase">
+            <span className="target-symbol-char">{targetSign.symbol}</span>
           </div>
 
-          <div className="frame-body">
-            <h2>{currentItem.title}</h2>
-            <p className="frame-instruction">{currentItem.postureGuidance}</p>
-            {currentItem.practiceTip && (
-              <p className="frame-tip">💡 {currentItem.practiceTip}</p>
+          <div className="target-details">
+            <h2>{targetSign.title}</h2>
+            <p className="target-instruction">{targetSign.postureGuidance}</p>
+            {targetSign.practiceTip && (
+              <p className="target-tip">💡 {targetSign.practiceTip}</p>
             )}
-          </div>
-
-          <div className="frame-actions">
-            <button
-              type="button"
-              className={`primary-learn-btn ${isCurrentLearned ? "is-learned" : ""}`}
-              onClick={() => toggleLearned(selectedCategory, currentItem.id)}
-            >
-              {isCurrentLearned ? "✓ Mastered (Click to Undo)" : "Mark as Mastered"}
-            </button>
-
-            <Link
-              to={
-                selectedCategory === "alphabets"
-                  ? `/learn/alphabets/${currentItem.id}`
-                  : `/learn/${selectedCategory}/${currentItem.id}`
-              }
-              className="frame-lesson-link"
-            >
-              View Lesson Details →
-            </Link>
           </div>
         </div>
 
         {/* Right: Live Camera Mirror */}
-        <div className="practice-camera-frame">
-          <div className="camera-frame-top">
-            <div className="camera-live-pill">
-              <span className={`live-dot ${isCameraActive ? "on" : ""}`}></span>
-              <span>{isCameraActive ? "Camera Live" : "Camera Idle"}</span>
+        <div className="practice-camera-card">
+          <div className="camera-card-top">
+            <div className="camera-status">
+              <span className={`status-bulb ${isCameraActive ? "live" : ""}`}></span>
+              <span>{isCameraActive ? "Camera Mirror Live" : "Camera Off"}</span>
             </div>
 
             {isCameraActive && (
               <button
                 type="button"
-                className="camera-tool-btn"
+                className="mirror-flip-btn"
                 onClick={() => setIsMirrored(!isMirrored)}
               >
                 {isMirrored ? "↔ Mirror On" : "↔ Normal"}
@@ -194,55 +137,89 @@ function Practice() {
             )}
           </div>
 
-          <div className="camera-lens-surface">
+          <div className="camera-screen-box">
             {cameraError ? (
-              <div className="camera-error-message">
+              <div className="camera-error-prompt">
                 <span>⚠️</span>
                 <p>{cameraError}</p>
                 <button type="button" className="hero-button" onClick={toggleCamera}>
-                  Retry Camera
+                  Enable Camera
                 </button>
               </div>
             ) : isCameraActive ? (
-              <div className="video-display-box">
+              <div className="camera-video-wrapper">
                 <video
                   ref={videoRef}
                   autoPlay
                   playsInline
                   muted
-                  className={`camera-stream ${isMirrored ? "mirrored" : ""}`}
+                  className={`live-video ${isMirrored ? "mirrored" : ""}`}
                 />
-                <div className="camera-silhouette-guide">
-                  <span>Hand Position</span>
+                <div className="camera-hand-silhouette">
+                  <span>Show sign here</span>
                 </div>
               </div>
             ) : (
-              <div className="camera-start-screen">
-                <span className="camera-start-icon">📹</span>
-                <h3>Practice Mirror</h3>
-                <p>Start your camera to verify your hand placement in real-time.</p>
-                <button type="button" className="hero-button" onClick={toggleCamera}>
+              <div className="camera-activate-prompt">
+                <span className="camera-big-icon">📷</span>
+                <h3>Practice with Camera</h3>
+                <p>Use your webcam mirror to match the hand posture in real-time.</p>
+                <button
+                  type="button"
+                  className="hero-button"
+                  onClick={toggleCamera}
+                >
                   Start Camera Mirror
                 </button>
               </div>
             )}
           </div>
 
-          {isCameraActive && (
-            <div className="camera-frame-controls">
+          {/* Verification & Reward Stage */}
+          {verificationResult ? (
+            <div className="practice-success-banner">
+              <div className="success-content">
+                <span className="success-check-icon">✓</span>
+                <div>
+                  <h4>Great Job! Sign Verified</h4>
+                  <p>
+                    {verificationResult.newlyMastered
+                      ? "+10 XP added to your learning journey!"
+                      : "Sign posture practiced! (Already in mastered list)"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="success-actions">
+                <button
+                  type="button"
+                  className="next-sign-cta-btn"
+                  onClick={handleNextSign}
+                >
+                  Next Sign →
+                </button>
+                <Link
+                  to={categoryParam === "alphabets" ? "/learn/alphabets" : `/learn/${categoryParam}`}
+                  className="back-roadmap-link"
+                >
+                  Back to Roadmap
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="practice-verify-action-box">
               <button
                 type="button"
-                className="camera-stop-btn"
-                onClick={toggleCamera}
+                className="practice-verify-btn"
+                onClick={handleVerifySign}
               >
-                Turn Off Camera
+                {alreadyMastered ? "Verify Sign Practice ✓" : "Verify Sign (+10 XP) ✓"}
               </button>
+              <small className="phase2-disclaimer">
+                Task 2 MediaPipe integration will automate recognition via real-time camera tracking.
+              </small>
             </div>
           )}
-
-          <div className="phase2-mini-note">
-            <span>⚡ Camera mirror active • MediaPipe AI pipeline ready for Phase 2</span>
-          </div>
         </div>
       </div>
     </main>
