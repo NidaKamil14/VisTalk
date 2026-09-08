@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Machine Learning & Large Dataset Files
+ml/data/raw/
+*.parquet
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/

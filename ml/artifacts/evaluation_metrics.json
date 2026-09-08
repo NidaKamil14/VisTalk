@@ -1,0 +1,171 @@
+{
+  "model": "MobileNetV3-Small",
+  "dataset": "Hemg/Indian_sign_language_dataset (A\u2013Z alphabet subset)",
+  "total_test_samples": 3195,
+  "num_classes": 26,
+  "accuracy": 100.0,
+  "macro_precision": 100.0,
+  "macro_recall": 100.0,
+  "macro_f1_score": 100.0,
+  "weighted_precision": 100.0,
+  "weighted_recall": 100.0,
+  "weighted_f1_score": 100.0,
+  "per_class_metrics": {
+    "A": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "B": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "C": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 145
+    },
+    "D": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "E": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "F": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "G": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "H": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "I": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 138
+    },
+    "J": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "K": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "L": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "M": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "N": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "O": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 143
+    },
+    "P": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "Q": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "R": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "S": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "T": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "U": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "V": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 129
+    },
+    "W": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "X": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "Y": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    },
+    "Z": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "f1_score": 100.0,
+      "support": 120
+    }
+  }
+}
