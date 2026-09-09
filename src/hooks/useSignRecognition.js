@@ -3,10 +3,10 @@ import { useState, useRef, useEffect, useCallback } from "react";
 /**
  * useSignRecognition Hook
  * 
- * Manages the live webcam video feed and performs real-time ISL alphabet prediction
- * using the trained MobileNetV3-Small neural network backend.
+ * Manages the live webcam video feed and performs real-time ISL prediction
+ * for both Alphabets (A-Z) and Numbers (0-9) using the dedicated MobileNetV3-Small backend models.
  */
-export function useSignRecognition(targetSign = null) {
+export function useSignRecognition(targetSign = null, category = "alphabets") {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [stream, setStream] = useState(null);
@@ -20,6 +20,20 @@ export function useSignRecognition(targetSign = null) {
   const [prediction, setPrediction] = useState(null);
   const [isPredicting, setIsPredicting] = useState(false);
   const [matchStreak, setMatchStreak] = useState(0);
+
+  // Track latest targetSign and category with refs to avoid timer thrashing
+  const targetSignRef = useRef(targetSign);
+  const categoryRef = useRef(category);
+
+  useEffect(() => {
+    targetSignRef.current = targetSign;
+  }, [targetSign]);
+
+  useEffect(() => {
+    categoryRef.current = category;
+  }, [category]);
+
+  const isPredictingRef = useRef(false);
 
   // Check Backend Server Health
   const checkServerHealth = useCallback(async () => {
@@ -42,7 +56,6 @@ export function useSignRecognition(targetSign = null) {
     return () => clearInterval(healthInterval);
   }, [checkServerHealth]);
 
-  // CRITICAL FIX FOR WEBCAM RENDERING:
   // Synchronize videoRef.current with active mediaStream whenever video element mounts or stream changes
   useEffect(() => {
     let playPromise = null;
@@ -57,7 +70,6 @@ export function useSignRecognition(targetSign = null) {
       }
 
       playPromise = video.play().catch((err) => {
-        // AbortError can happen if play() is interrupted by a pause/unmount
         if (err.name !== "AbortError") {
           console.warn("Webcam video play warning:", err);
         }
@@ -70,14 +82,6 @@ export function useSignRecognition(targetSign = null) {
       }
     };
   }, [isCameraActive, stream]);
-
-  // Track latest targetSign and prediction concurrency with refs to avoid timer thrashing
-  const targetSignRef = useRef(targetSign);
-  useEffect(() => {
-    targetSignRef.current = targetSign;
-  }, [targetSign]);
-
-  const isPredictingRef = useRef(false);
 
   // Capture a single frame from video and send to prediction API
   const captureAndPredict = useCallback(async () => {
@@ -102,20 +106,23 @@ export function useSignRecognition(targetSign = null) {
       // Draw current video frame scaled to 128x128
       ctx.drawImage(video, 0, 0, 128, 128);
       const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+      const activeCategory = categoryRef.current || "alphabets";
 
       // Send to inference API
       let response;
+      const payload = JSON.stringify({ image: dataUrl, category: activeCategory });
+
       try {
         response = await fetch("/api/predict", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image: dataUrl }),
+          body: payload,
         });
       } catch {
         response = await fetch("http://localhost:5001/predict", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image: dataUrl }),
+          body: payload,
         });
       }
 
@@ -124,8 +131,12 @@ export function useSignRecognition(targetSign = null) {
         if (data.success) {
           setIsServerOnline(true);
           const currentTarget = targetSignRef.current;
-          const targetChar = (currentTarget?.symbol || currentTarget?.title || currentTarget?.id || "").replace(/Letter\s*/i, "").trim().toUpperCase();
-          const predChar = data.prediction.toUpperCase();
+          const targetChar = (currentTarget?.symbol || currentTarget?.title || currentTarget?.id || "")
+            .replace(/Letter\s*/i, "")
+            .replace(/Number\s*/i, "")
+            .trim()
+            .toUpperCase();
+          const predChar = String(data.prediction).trim().toUpperCase();
           const isTargetMatch = Boolean(targetChar && predChar === targetChar);
 
           const result = {
@@ -133,6 +144,7 @@ export function useSignRecognition(targetSign = null) {
             confidence: data.confidence,
             topPredictions: data.top_predictions || [],
             isMatch: isTargetMatch,
+            category: activeCategory,
             timestamp: Date.now(),
           };
 
@@ -160,7 +172,6 @@ export function useSignRecognition(targetSign = null) {
   useEffect(() => {
     let intervalId = null;
     if (isCameraActive) {
-      // Run prediction every 500ms
       intervalId = setInterval(() => {
         captureAndPredict();
       }, 500);
@@ -193,7 +204,6 @@ export function useSignRecognition(targetSign = null) {
       setStream(mediaStream);
       setIsCameraActive(true);
 
-      // Try immediate attachment if video element is already available
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
         videoRef.current.muted = true;

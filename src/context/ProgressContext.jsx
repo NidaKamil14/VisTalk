@@ -14,8 +14,6 @@ const STORAGE_PROGRESS_PREFIX = "vistalk_progress_";
 const DEFAULT_PROGRESS = {
   alphabets: [],
   numbers: [],
-  words: [],
-  phrases: [],
   history: [],
   streakDays: 1,
   lastActivityDate: new Date().toISOString().split("T")[0],
@@ -186,7 +184,10 @@ export function ProgressProvider({ children }) {
 
   const getCategoryProgress = (categoryId) => {
     const items = getItemsByCategory(categoryId);
-    const total = items.length || 1;
+    const total = items.length || 0;
+    if (total === 0) {
+      return { count: 0, total: 0, percentage: 0 };
+    }
     const learnedList = progress[categoryId] || [];
     const count = learnedList.length;
     const percentage = Math.min(100, Math.round((count / total) * 100));
@@ -202,9 +203,7 @@ export function ProgressProvider({ children }) {
     const total = getTotalCount() || 1;
     const count =
       (progress.alphabets?.length || 0) +
-      (progress.numbers?.length || 0) +
-      (progress.words?.length || 0) +
-      (progress.phrases?.length || 0);
+      (progress.numbers?.length || 0);
     const percentage = Math.min(100, Math.round((count / total) * 100));
 
     return {
@@ -217,7 +216,7 @@ export function ProgressProvider({ children }) {
 
   const getStats = () => {
     const overall = getOverallProgress();
-    const categoryStats = CATEGORIES.map((cat) => ({
+    const categoryStats = CATEGORIES.filter((c) => c.id !== "coming_soon").map((cat) => ({
       ...cat,
       ...getCategoryProgress(cat.id),
     }));

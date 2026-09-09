@@ -21,6 +21,8 @@ function LetterLesson() {
     }
   };
 
+  const mediaUrl = item?.mediaUrl || `/reference_signs/${currentLetter}.jpg`;
+
   return (
     <main className="game-lesson-page">
       {/* Top Roadmap Breadcrumb */}
@@ -28,7 +30,7 @@ function LetterLesson() {
         <Link to="/learn/alphabets" className="game-back-btn">
           ← Back to Roadmap
         </Link>
-        <span className="game-level-tag">ALPHABET ROADMAP</span>
+        <span className="game-level-tag">ISL ALPHABET ROADMAP</span>
       </nav>
 
       {/* The Visual Dominates the Page */}
@@ -39,6 +41,7 @@ function LetterLesson() {
             title={`Letter ${currentLetter}`}
             category="alphabets"
             isLearned={learned}
+            mediaUrl={mediaUrl}
           />
           {learned && (
             <div className="sign-xp-awarded-pill">
@@ -51,7 +54,7 @@ function LetterLesson() {
         <div className="game-lesson-text">
           <h1>Letter {currentLetter}</h1>
           <p className="lesson-one-liner">
-            {item ? item.postureGuidance : "Form the manual sign with your hand facing forward."}
+            {item ? item.postureGuidance : "Form the manual sign with your hands positioned clearly."}
           </p>
           {item?.practiceTip && (
             <div className="lesson-subtle-tip">

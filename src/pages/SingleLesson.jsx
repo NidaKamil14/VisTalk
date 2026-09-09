@@ -26,6 +26,8 @@ function SingleLesson() {
     }
   };
 
+  const mediaUrl = item.mediaUrl || (category === "numbers" ? `/reference_signs/numbers/${item.id}.jpg` : `/reference_signs/${item.id}.jpg`);
+
   return (
     <main className="game-lesson-page">
       {/* Top Roadmap Breadcrumb */}
@@ -33,7 +35,7 @@ function SingleLesson() {
         <Link to={`/learn/${category}`} className="game-back-btn">
           ← Back to Roadmap
         </Link>
-        <span className="game-level-tag">{config.title.toUpperCase()} ROADMAP</span>
+        <span className="game-level-tag">ISL {config.title.toUpperCase()} ROADMAP</span>
       </nav>
 
       {/* The Visual Dominates the Page */}
@@ -44,6 +46,7 @@ function SingleLesson() {
             title={item.title}
             category={category}
             isLearned={learned}
+            mediaUrl={mediaUrl}
           />
           {learned && (
             <div className="sign-xp-awarded-pill">

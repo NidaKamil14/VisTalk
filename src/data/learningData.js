@@ -1,9 +1,10 @@
 /**
  * VisTalk Curriculum Data Architecture
  * 
- * Provides clean curriculum models for Alphabets, Numbers, Everyday Words,
- * and Common Phrases. Structured so verified datasets (e.g. WLASL, ASL Lexicon,
- * or custom recorded video/landmarks) can be cleanly plugged in during Task 2.
+ * Final MVP Curriculum Scope:
+ * 1. Alphabets → A–Z (26 classes)
+ * 2. Numbers   → 0–9 (10 classes)
+ * 3. Coming Soon → Future module showcase
  */
 
 export const CATEGORIES = [
@@ -12,7 +13,7 @@ export const CATEGORIES = [
     number: "01",
     title: "Alphabets",
     shortTitle: "Alphabets",
-    description: "Master the manual signs for A to Z and build your fingerspelling foundation.",
+    description: "Master the manual signs for A to Z and build your ISL fingerspelling foundation.",
     level: "Beginner",
     path: "/learn/alphabets",
     itemCount: 26,
@@ -23,33 +24,22 @@ export const CATEGORIES = [
     number: "02",
     title: "Numbers",
     shortTitle: "Numbers",
-    description: "Learn numbers 1 to 10 and foundational manual counting signs.",
+    description: "Learn numbers 0 to 9 and foundational ISL manual counting signs.",
     level: "Beginner",
     path: "/learn/numbers",
     itemCount: 10,
     icon: "🔢",
   },
   {
-    id: "words",
+    id: "coming_soon",
     number: "03",
-    title: "Everyday Words",
-    shortTitle: "Words",
-    description: "Essential high-frequency signs for daily greetings and practical interactions.",
-    level: "Beginner",
-    path: "/learn/words",
-    itemCount: 8,
-    icon: "💬",
-  },
-  {
-    id: "phrases",
-    number: "04",
-    title: "Common Phrases",
-    shortTitle: "Phrases",
-    description: "Connect signs together into natural expressions and conversational sentences.",
-    level: "Intermediate",
-    path: "/learn/phrases",
-    itemCount: 6,
-    icon: "🤝",
+    title: "Coming Soon",
+    shortTitle: "Future Modules",
+    description: "Everyday Words, Conversational Phrases, and Dialogue Practice coming in future releases.",
+    level: "Future",
+    path: "/learn/coming_soon",
+    itemCount: 0,
+    icon: "✨",
   },
 ];
 
@@ -187,7 +177,7 @@ const ISL_ALPHABET_GUIDANCE = {
   }
 };
 
-// Alphabet letters A through Z
+// Alphabet letters A through Z (26 classes)
 export const ALPHABETS_DATA = Array.from({ length: 26 }, (_, index) => {
   const letter = String.fromCharCode(65 + index);
   const info = ISL_ALPHABET_GUIDANCE[letter] || {};
@@ -203,340 +193,89 @@ export const ALPHABETS_DATA = Array.from({ length: 26 }, (_, index) => {
     practiceTip: info.tip || "Keep your hands relaxed and positioned clearly within the camera frame.",
     commonMistakes: info.mistake || "Ensure fingers are positioned distinctly according to the reference photo.",
     mediaUrl: `/reference_signs/${letter}.jpg`,
-    datasetStatus: "Verified ISL Dataset Reference Image (Hemg Dataset)",
+    datasetStatus: "Verified ISL Alphabet Reference Image",
   };
 });
 
-// Numbers 1 through 10
-export const NUMBERS_DATA = [
-  {
-    id: "1",
-    title: "Number 1",
-    symbol: "1",
-    category: "numbers",
-    level: "Beginner",
-    tag: "NUMBERS • BEGINNER",
-    summary: "Single digit counting sign for one.",
-    postureGuidance: "Standard numerical sign for '1'. In manual counting, the index finger is extended with the remaining fingers closed.",
-    practiceTip: "Hold hand steady and upright without wavering.",
-    commonMistakes: "Extending the thumb instead of the index finger.",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
+// Authentic Indian Sign Language (ISL) Numbers 0 through 9 (10 classes)
+const ISL_NUMBER_GUIDANCE = {
+  "0": {
+    guidance: "Form a circular 'O' shape by touching the thumb and all fingertips together in front of your chest.",
+    tip: "Keep the circle neat and visible directly to the camera.",
+    mistake: "Do not close into a tight fist."
   },
-  {
-    id: "2",
-    title: "Number 2",
-    symbol: "2",
-    category: "numbers",
-    level: "Beginner",
-    tag: "NUMBERS • BEGINNER",
-    summary: "Single digit counting sign for two.",
-    postureGuidance: "Index and middle fingers extended in a V-shape with palm facing inward or forward depending on dialect.",
-    practiceTip: "Keep both fingers straight and separated evenly.",
-    commonMistakes: "Letting the ring finger slip open.",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
+  "1": {
+    guidance: "Extend your index finger straight upright while keeping other fingers and thumb closed.",
+    tip: "Hold your hand steady at chest level with palm facing forward.",
+    mistake: "Do not extend the thumb."
   },
-  {
-    id: "3",
-    title: "Number 3",
-    symbol: "3",
-    category: "numbers",
-    level: "Beginner",
-    tag: "NUMBERS • BEGINNER",
-    summary: "Single digit counting sign for three.",
-    postureGuidance: "Thumb, index, and middle fingers extended with ring and pinky fingers folded down.",
-    practiceTip: "Note that in ASL number 3 uses the thumb rather than the ring finger.",
-    commonMistakes: "Using European counting style (index, middle, ring).",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
+  "2": {
+    guidance: "Extend index and middle fingers in an upright 'V' shape while thumb holds folded ring and pinky fingers.",
+    tip: "Keep index and middle fingers straight and evenly separated.",
+    mistake: "Do not curl the index finger."
   },
-  {
-    id: "4",
-    title: "Number 4",
-    symbol: "4",
-    category: "numbers",
-    level: "Beginner",
-    tag: "NUMBERS • BEGINNER",
-    summary: "Single digit counting sign for four.",
-    postureGuidance: "Four fingers extended upright with thumb folded neatly across the palm.",
-    practiceTip: "Ensure the four fingers are spread comfortably.",
-    commonMistakes: "Leaving the thumb sticking out sideways.",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
+  "3": {
+    guidance: "Extend thumb, index, and middle fingers outward while keeping ring and pinky folded.",
+    tip: "Spread the three active fingers evenly.",
+    mistake: "Avoid folding the thumb flat."
   },
-  {
-    id: "5",
-    title: "Number 5",
-    symbol: "5",
-    category: "numbers",
-    level: "Beginner",
-    tag: "NUMBERS • BEGINNER",
-    summary: "Single digit counting sign for five.",
-    postureGuidance: "All five digits fully extended and gently spread, palm facing forward.",
-    practiceTip: "Present an open, calm hand without locking the finger joints.",
-    commonMistakes: "Overextending backwards at the knuckles.",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
+  "4": {
+    guidance: "Extend all four fingers (index, middle, ring, pinky) upright and spread evenly, with thumb folded across palm.",
+    tip: "Keep all four fingers vertical and upright.",
+    mistake: "Do not leave the thumb sticking out sideways."
   },
-  {
-    id: "6",
-    title: "Number 6",
-    symbol: "6",
-    category: "numbers",
-    level: "Beginner",
-    tag: "NUMBERS • BEGINNER",
-    summary: "Single digit counting sign for six.",
-    postureGuidance: "Thumb and pinky tip touching lightly, while index, middle, and ring fingers remain upright.",
-    practiceTip: "Form a clean contact between pinky and thumb pad.",
-    commonMistakes: "Confusing with number 9 (index-thumb contact).",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
+  "5": {
+    guidance: "Extend all five fingers and thumb fully open with palm facing outward toward the camera.",
+    tip: "Present an open, relaxed hand without tensing knuckles.",
+    mistake: "Do not bend finger joints backward."
   },
-  {
-    id: "7",
-    title: "Number 7",
-    symbol: "7",
-    category: "numbers",
-    level: "Beginner",
-    tag: "NUMBERS • BEGINNER",
-    summary: "Single digit counting sign for seven.",
-    postureGuidance: "Thumb touches the tip of the ring finger while index, middle, and pinky stay extended.",
-    practiceTip: "Practice independent ring-finger control.",
-    commonMistakes: "Collapsing the middle finger alongside the ring finger.",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
+  "6": {
+    guidance: "Touch your thumb tip to your pinky fingertip while keeping index, middle, and ring fingers upright.",
+    tip: "Make clean contact between thumb and pinky tips.",
+    mistake: "Do not confuse with number 9 (which uses the index finger)."
   },
-  {
-    id: "8",
-    title: "Number 8",
-    symbol: "8",
-    category: "numbers",
-    level: "Beginner",
-    tag: "NUMBERS • BEGINNER",
-    summary: "Single digit counting sign for eight.",
-    postureGuidance: "Thumb touches the tip of the middle finger while index, ring, and pinky fingers are upright.",
-    practiceTip: "Keep the index and ring fingers well-separated.",
-    commonMistakes: "Touching the ring finger instead of middle finger.",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
+  "7": {
+    guidance: "Touch your thumb tip to your ring fingertip while keeping index, middle, and pinky fingers extended.",
+    tip: "Keep the remaining three fingers steady and upright.",
+    mistake: "Do not collapse the middle finger alongside the ring finger."
   },
-  {
-    id: "9",
-    title: "Number 9",
-    symbol: "9",
-    category: "numbers",
-    level: "Beginner",
-    tag: "NUMBERS • BEGINNER",
-    summary: "Single digit counting sign for nine.",
-    postureGuidance: "Thumb touches the tip of the index finger while middle, ring, and pinky fingers remain extended.",
-    practiceTip: "Similar to the 'OK' handshape with palm facing outward.",
-    commonMistakes: "Confusing with the letter 'F' or number 6.",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
+  "8": {
+    guidance: "Touch your thumb tip to your middle fingertip while keeping index, ring, and pinky fingers upright.",
+    tip: "Maintain a distinct gap between index and ring fingers.",
+    mistake: "Do not touch the ring finger instead of middle finger."
   },
-  {
-    id: "10",
-    title: "Number 10",
-    symbol: "10",
-    category: "numbers",
-    level: "Beginner",
-    tag: "NUMBERS • BEGINNER",
-    summary: "Two-digit milestone sign for ten.",
-    postureGuidance: "A fist with thumb pointing upward, shaken slightly side-to-side.",
-    practiceTip: "A quick, subtle wrist pivot gives the sign clarity.",
-    commonMistakes: "Exaggerating the shake or swinging the entire forearm.",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
-  },
-];
+  "9": {
+    guidance: "Touch your thumb tip to your index fingertip to form a circular loop while middle, ring, and pinky fingers remain extended.",
+    tip: "Resembles the 'OK' handshape with palm facing forward.",
+    mistake: "Do not confuse with number 6 (pinky contact)."
+  }
+};
 
-// Everyday Words
-export const WORDS_DATA = [
-  {
-    id: "hello",
-    title: "Hello",
-    symbol: "Hello",
-    category: "words",
+// Numbers 0 through 9
+export const NUMBERS_DATA = Array.from({ length: 10 }, (_, index) => {
+  const digit = String(index);
+  const info = ISL_NUMBER_GUIDANCE[digit] || {};
+  return {
+    id: digit,
+    title: `Number ${digit}`,
+    symbol: digit,
+    category: "numbers",
     level: "Beginner",
-    tag: "WORDS • BEGINNER",
-    summary: "Friendly opening greeting sign.",
-    postureGuidance: "Flat hand starts near the temple or brow and smoothly sweeps upward and outward, akin to an open salute.",
-    practiceTip: "Pair with an approachable facial expression and eye contact.",
-    commonMistakes: "Starting too far from the head or using an overly stiff salute.",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
-  },
-  {
-    id: "thank-you",
-    title: "Thank You",
-    symbol: "Thanks",
-    category: "words",
-    level: "Beginner",
-    tag: "WORDS • BEGINNER",
-    summary: "Essential expression of gratitude.",
-    postureGuidance: "Fingertips of dominant flat hand touch chin/lips and gently move forward and downward toward the other person.",
-    practiceTip: "Keep the movement smooth, extending respect outward.",
-    commonMistakes: "Confusing with the sign for 'Blow a Kiss' or starting from the chest.",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
-  },
-  {
-    id: "please",
-    title: "Please",
-    symbol: "Please",
-    category: "words",
-    level: "Beginner",
-    tag: "WORDS • BEGINNER",
-    summary: "Polite request sign.",
-    postureGuidance: "Flat hand placed flat over the center of the chest, rubbing in a gentle clockwise circular motion.",
-    practiceTip: "A sincere expression reinforces the polite intent.",
-    commonMistakes: "Rubbing counter-clockwise or using both hands.",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
-  },
-  {
-    id: "yes",
-    title: "Yes",
-    symbol: "Yes",
-    category: "words",
-    level: "Beginner",
-    tag: "WORDS • BEGINNER",
-    summary: "Affirmative agreement sign.",
-    postureGuidance: "Form an 'S' fist and nod it gently forward at the wrist, mimicking a head nod.",
-    practiceTip: "A slight head nod alongside the hand enhances clarity.",
-    commonMistakes: "Shaking sideways or moving the entire arm instead of the wrist.",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
-  },
-  {
-    id: "no",
-    title: "No",
-    symbol: "No",
-    category: "words",
-    level: "Beginner",
-    tag: "WORDS • BEGINNER",
-    summary: "Direct negative response sign.",
-    postureGuidance: "Index and middle fingers snap down briskly to tap the thumb pad.",
-    practiceTip: "Keep the tap crisp and decisive.",
-    commonMistakes: "Using all four fingers instead of just index and middle.",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
-  },
-  {
-    id: "help",
-    title: "Help",
-    symbol: "Help",
-    category: "words",
-    level: "Beginner",
-    tag: "WORDS • BEGINNER",
-    summary: "Vital assistance and support sign.",
-    postureGuidance: "Dominant hand forms a thumbs-up fist placed on top of non-dominant flat open palm; both hands lift upward together.",
-    practiceTip: "The direction of movement can indicate who is helping whom (directional verb).",
-    commonMistakes: "Dropping the hands rather than lifting upward together.",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
-  },
-  {
-    id: "sorry",
-    title: "Sorry",
-    symbol: "Sorry",
-    category: "words",
-    level: "Beginner",
-    tag: "WORDS • BEGINNER",
-    summary: "Apology and empathy sign.",
-    postureGuidance: "Dominant hand forms an 'A' fist and rubs in a circular motion against the chest over the heart.",
-    practiceTip: "Facial expression should genuinely reflect remorse or empathy.",
-    commonMistakes: "Confusing with 'Please' (which uses an open flat hand instead of a fist).",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
-  },
-  {
-    id: "friend",
-    title: "Friend",
-    symbol: "Friend",
-    category: "words",
-    level: "Beginner",
-    tag: "WORDS • BEGINNER",
-    summary: "Sign expressing camaraderie and friendship.",
-    postureGuidance: "Both index fingers hook together once, then flip and hook in reverse.",
-    practiceTip: "The interlinking fingers symbolize a bond.",
-    commonMistakes: "Hooking only once without the alternating clasp.",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
-  },
-];
+    tag: "ISL NUMBERS • 0–9",
+    summary: `Authentic Indian Sign Language (ISL) manual counting sign for '${digit}'.`,
+    postureGuidance: info.guidance || `Standard Indian Sign Language (ISL) manual posture for '${digit}'.`,
+    practiceTip: info.tip || "Keep your hand steady and centered in the frame.",
+    commonMistakes: info.mistake || "Ensure fingers are positioned distinctly according to the reference photo.",
+    mediaUrl: `/reference_signs/numbers/${digit}.jpg`,
+    datasetStatus: "Verified ISL Numbers Reference Image",
+  };
+});
 
-// Common Phrases
-export const PHRASES_DATA = [
-  {
-    id: "nice-to-meet-you",
-    title: "Nice to Meet You",
-    symbol: "Nice to Meet You",
-    category: "phrases",
-    level: "Intermediate",
-    tag: "PHRASES • INTERMEDIATE",
-    summary: "Warm introductory conversation phrase.",
-    postureGuidance: "A graceful sequence connecting 'NICE' (flat hand sweeps across palm) + 'MEET' (both index fingers approach each other) + 'YOU' (index points to partner).",
-    practiceTip: "Ensure smooth transitions between signs without rushing.",
-    commonMistakes: "Blending the signs so fast that the distinct handshapes blur.",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
-  },
-  {
-    id: "how-are-you",
-    title: "How Are You?",
-    symbol: "How Are You?",
-    category: "phrases",
-    level: "Intermediate",
-    tag: "PHRASES • INTERMEDIATE",
-    summary: "Frequent daily conversational question.",
-    postureGuidance: "Combines 'HOW' (curved hands roll outward) followed by pointing toward conversation partner ('YOU').",
-    practiceTip: "Lower eyebrows slightly to indicate an open-ended WH-question.",
-    commonMistakes: "Omitting the natural facial grammatical marker.",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
-  },
-  {
-    id: "my-name-is",
-    title: "My Name Is...",
-    symbol: "My Name...",
-    category: "phrases",
-    level: "Intermediate",
-    tag: "PHRASES • INTERMEDIATE",
-    summary: "Standard self-introduction sequence.",
-    postureGuidance: "Flat hand on chest ('MY') followed by tapping double 'H' fingers together twice ('NAME'), followed by fingerspelling your name.",
-    practiceTip: "Keep fingerspelling steady rather than trying to spell quickly.",
-    commonMistakes: "Using a pointing finger instead of flat hand for 'MY' (which means 'I' or 'ME').",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
-  },
-  {
-    id: "good-morning",
-    title: "Good Morning",
-    symbol: "Good Morning",
-    category: "phrases",
-    level: "Intermediate",
-    tag: "PHRASES • INTERMEDIATE",
-    summary: "Morning greeting expression.",
-    postureGuidance: "Signs 'GOOD' (chin to hand) transitioning smoothly into 'MORNING' (sun rising over non-dominant arm).",
-    practiceTip: "A steady rising movement on 'morning' represents daylight emerging.",
-    commonMistakes: "Rushing past the chin contact on 'GOOD'.",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
-  },
-  {
-    id: "see-you-later",
-    title: "See You Later",
-    symbol: "See You Later",
-    category: "phrases",
-    level: "Intermediate",
-    tag: "PHRASES • INTERMEDIATE",
-    summary: "Casual parting and farewell expression.",
-    postureGuidance: "'SEE' (V-hand near eye) + 'YOU' (point outward) + 'LATER' (L-hand drops forward like a clock hand).",
-    practiceTip: "Can be signed in a friendly, relaxed rhythm.",
-    commonMistakes: "Flipping the 'L' hand backwards instead of forward.",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
-  },
-  {
-    id: "thank-you-very-much",
-    title: "Thank You Very Much",
-    symbol: "Thank You Very Much",
-    category: "phrases",
-    level: "Intermediate",
-    tag: "PHRASES • INTERMEDIATE",
-    summary: "Amplified expression of deep gratitude.",
-    postureGuidance: "Two-handed 'THANK YOU' initiated with both hands from chin/lips sweeping forward simultaneously with a warm smile.",
-    practiceTip: "Two-handed variation signifies heightened warmth and sincerity.",
-    commonMistakes: "Signing with one hand when expressing amplified thanks.",
-    datasetStatus: "Slot prepared for verified Task 2 dataset",
-  },
-];
-
-// Helper maps
+// Helper curriculum map
 const CURRICULUM_MAP = {
   alphabets: ALPHABETS_DATA,
   numbers: NUMBERS_DATA,
-  words: WORDS_DATA,
-  phrases: PHRASES_DATA,
+  coming_soon: [],
 };
 
 export function getCategories() {
@@ -578,10 +317,5 @@ export function getAdjacentItems(categoryId, itemId) {
 }
 
 export function getTotalCount() {
-  return (
-    ALPHABETS_DATA.length +
-    NUMBERS_DATA.length +
-    WORDS_DATA.length +
-    PHRASES_DATA.length
-  );
+  return ALPHABETS_DATA.length + NUMBERS_DATA.length;
 }

@@ -25,7 +25,7 @@ function Hero() {
           </div>
           <div className="hand-sign-tag">
             <span className="sign-name">Welcome</span>
-            <small>Foundational ASL</small>
+            <small>Foundational ISL</small>
           </div>
         </div>
       </div>

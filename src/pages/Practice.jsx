@@ -6,6 +6,7 @@ import {
   getItemsByCategory,
   getItem,
   ALPHABETS_DATA,
+  NUMBERS_DATA,
 } from "../data/learningData";
 
 function Practice() {
@@ -27,10 +28,14 @@ function Practice() {
       if (found) return found;
     }
     const nextUnlearned = categoryItems.find((it) => !isLearned(categoryParam, it.id));
-    return nextUnlearned || categoryItems[0] || ALPHABETS_DATA[0];
+    return (
+      nextUnlearned ||
+      categoryItems[0] ||
+      (categoryParam === "numbers" ? NUMBERS_DATA[0] : ALPHABETS_DATA[0])
+    );
   }, [categoryParam, signParam, categoryItems, isLearned]);
 
-  const targetLetter = (targetSign.symbol || targetSign.id || "A").toUpperCase();
+  const targetSymbol = (targetSign.symbol || targetSign.id || "A").toUpperCase();
 
   const targetIndex = useMemo(() => {
     return categoryItems.findIndex(
@@ -40,7 +45,7 @@ function Practice() {
 
   const alreadyMastered = isLearned(categoryParam, targetSign.id);
 
-  // Hook up real-time ML sign recognition
+  // Hook up real-time ML sign recognition with category routing (alphabets vs numbers)
   const {
     videoRef,
     isCameraActive,
@@ -52,7 +57,7 @@ function Practice() {
     prediction,
     isPredicting,
     captureAndPredict,
-  } = useSignRecognition(targetSign);
+  } = useSignRecognition(targetSign, categoryParam);
 
   // Verification state
   const [verificationResult, setVerificationResult] = useState(null);
@@ -60,7 +65,7 @@ function Practice() {
   // Reset verification when switching signs
   useEffect(() => {
     setVerificationResult(null);
-  }, [targetSign.id]);
+  }, [targetSign.id, categoryParam]);
 
   // Transition to next sign
   const handleNextSign = () => {
@@ -80,7 +85,6 @@ function Practice() {
 
   // Trigger verification and award +10 XP
   const handleVerifySign = async () => {
-    // If camera active, trigger an immediate prediction check
     if (isCameraActive) {
       await captureAndPredict();
     }
@@ -95,13 +99,22 @@ function Practice() {
       success: true,
       newlyMastered,
       xpEarned,
-      predictedLetter: prediction?.letter || targetLetter,
+      predictedLetter: prediction?.letter || targetSymbol,
       confidence: prediction?.confidence || 100,
     });
   };
 
   // Reference image source
-  const referenceImageSrc = targetSign.mediaUrl || `/reference_signs/${targetLetter}.jpg`;
+  const referenceImageSrc =
+    targetSign.mediaUrl ||
+    (categoryParam === "numbers"
+      ? `/reference_signs/numbers/${targetSymbol}.jpg`
+      : `/reference_signs/${targetSymbol}.jpg`);
+
+  const modelLabel =
+    categoryParam === "numbers"
+      ? "Trained ISL Numbers Model Active (MobileNetV3-Small • 0–9)"
+      : "Trained ISL Alphabet Model Active (MobileNetV3-Small • A–Z)";
 
   return (
     <main className="game-practice-page">
@@ -157,10 +170,9 @@ function Practice() {
           <div className="target-reference-visual-box">
             <img
               src={referenceImageSrc}
-              alt={`ISL Hand Gesture Demonstration for Letter ${targetLetter}`}
+              alt={`ISL Hand Gesture Demonstration for ${targetSign.title}`}
               className="target-reference-photo"
               onError={(e) => {
-                // Fallback to text symbol if image is unavailable
                 e.target.style.display = "none";
                 if (e.target.nextSibling) {
                   e.target.nextSibling.style.display = "flex";
@@ -168,10 +180,10 @@ function Practice() {
               }}
             />
             <div className="target-symbol-fallback" style={{ display: "none" }}>
-              <span>{targetLetter}</span>
+              <span>{targetSymbol}</span>
             </div>
             <div className="target-badge-overlay">
-              <span className="target-letter-badge">{targetLetter}</span>
+              <span className="target-letter-badge">{targetSymbol}</span>
             </div>
           </div>
 
@@ -255,7 +267,7 @@ function Practice() {
                           <span
                             key={idx}
                             className={`candidate-chip ${
-                              item.letter.toUpperCase() === targetLetter
+                              item.letter.toUpperCase() === targetSymbol
                                 ? "chip-target"
                                 : ""
                             }`}
@@ -269,7 +281,7 @@ function Practice() {
                 ) : (
                   <div className="ai-prediction-hud hud-waiting">
                     <span className="hud-dot pulse"></span>
-                    <span>Analyzing hand posture with MobileNetV3...</span>
+                    <span>Analyzing hand posture with {categoryParam === "numbers" ? "Numbers" : "Alphabet"} Model...</span>
                   </div>
                 )}
               </div>
@@ -340,7 +352,7 @@ function Practice() {
                 <span className={`indicator-light ${isServerOnline ? "online" : "offline"}`}></span>
                 <span>
                   {isServerOnline
-                    ? "Trained ISL Model Active (MobileNetV3-Small)"
+                    ? modelLabel
                     : "Local ML Server Offline (run `python3 ml/server.py`)"}
                 </span>
               </div>

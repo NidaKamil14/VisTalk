@@ -1,9 +1,8 @@
 /**
  * SignVisual Component
  * 
- * Clean, focused visual representation of manual signs.
- * Provides a prominent visual anchor with clean asset slots ready
- * for verified video/3D landmark integration in Task 2.
+ * Renders authentic ISL sign demonstration photos with symbol overlay,
+ * posture guidance caption, and completion status.
  */
 
 export function SignVisual({
@@ -47,8 +46,25 @@ export function SignVisual({
       )}
 
       {mediaUrl ? (
-        <div className="sign-media-container">
-          <img src={mediaUrl} alt={`Sign demonstration for ${title || symbol}`} />
+        <div className="sign-media-box">
+          <img
+            src={mediaUrl}
+            alt={`ISL sign demonstration for ${title || symbol}`}
+            className="sign-demo-photo"
+            onError={(e) => {
+              e.target.style.display = "none";
+              const fallback = e.target.parentElement.querySelector(".sign-hero-fallback");
+              if (fallback) {
+                fallback.style.display = "flex";
+              }
+            }}
+          />
+          <div className="sign-hero-fallback" style={{ display: "none" }}>
+            <span className="sign-hero-char">{symbol}</span>
+          </div>
+          <div className="sign-badge-overlay">
+            <span className="sign-badge-char">{symbol}</span>
+          </div>
         </div>
       ) : (
         <div className="sign-hero-badge">
@@ -56,7 +72,7 @@ export function SignVisual({
         </div>
       )}
 
-      <span className="sign-caption">Manual Sign Posture</span>
+      <span className="sign-caption">Authentic ISL Sign Posture</span>
     </div>
   );
 }
