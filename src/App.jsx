@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import { ProgressProvider } from "./context/ProgressContext";
 
@@ -14,50 +15,54 @@ import Practice from "./pages/Practice";
 import Progress from "./pages/Progress";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Profile from "./pages/Profile";
 import XpToast from "./components/XpToast";
 import NotFound from "./pages/NotFound";
 
 function App() {
   return (
-    <AuthProvider>
-      <ProgressProvider>
-        <BrowserRouter>
-          <div className="app-container">
-            <Navbar />
-            <XpToast />
+    <ThemeProvider>
+      <AuthProvider>
+        <ProgressProvider>
+          <BrowserRouter>
+            <div className="app-container">
+              <Navbar />
+              <XpToast />
 
-            <div className="main-content">
-              <Routes>
-                {/* Landing & Learning Flow */}
-                <Route path="/" element={<Hero />} />
-                <Route path="/learn" element={<Learn />} />
+              <div className="main-content">
+                <Routes>
+                  {/* Landing & Learning Flow */}
+                  <Route path="/" element={<Hero />} />
+                  <Route path="/learn" element={<Learn />} />
 
-                {/* Specific Alphabet Route (preserves existing URLs) */}
-                <Route path="/learn/alphabets" element={<AlphabetLesson />} />
-                <Route path="/learn/alphabets/:letter" element={<LetterLesson />} />
+                  {/* Specific Alphabet Route (preserves existing URLs) */}
+                  <Route path="/learn/alphabets" element={<AlphabetLesson />} />
+                  <Route path="/learn/alphabets/:letter" element={<LetterLesson />} />
 
-                {/* Dynamic Category & Single Item Routes */}
-                <Route path="/learn/:category" element={<CategoryLesson />} />
-                <Route path="/learn/:category/:id" element={<SingleLesson />} />
+                  {/* Dynamic Category & Single Item Routes */}
+                  <Route path="/learn/:category" element={<CategoryLesson />} />
+                  <Route path="/learn/:category/:id" element={<SingleLesson />} />
 
-                {/* Practice & Progress */}
-                <Route path="/practice" element={<Practice />} />
-                <Route path="/progress" element={<Progress />} />
+                  {/* Practice & Progress */}
+                  <Route path="/practice" element={<Practice />} />
+                  <Route path="/progress" element={<Progress />} />
 
-                {/* Authentication */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
+                  {/* Authentication & Account */}
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/profile" element={<Profile />} />
 
-                {/* 404 Catch-all */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+                  {/* 404 Catch-all */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </div>
+
+              <Footer />
             </div>
-
-            <Footer />
-          </div>
-        </BrowserRouter>
-      </ProgressProvider>
-    </AuthProvider>
+          </BrowserRouter>
+        </ProgressProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

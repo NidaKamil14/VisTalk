@@ -101,11 +101,29 @@ export function useSignRecognition(targetSign = null, category = "alphabets") {
       const canvas = canvasRef.current;
       canvas.width = 128;
       canvas.height = 128;
-      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
 
-      // Draw current video frame scaled to 128x128
-      ctx.drawImage(video, 0, 0, 128, 128);
-      const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+      // Center-crop a square region from the video frame (matching hand placement frame)
+      const vWidth = video.videoWidth;
+      const vHeight = video.videoHeight;
+      const minDim = Math.min(vWidth, vHeight);
+      const startX = (vWidth - minDim) / 2;
+      const startY = (vHeight - minDim) / 2;
+
+      ctx.clearRect(0, 0, 128, 128);
+
+      if (isMirrored) {
+        ctx.save();
+        ctx.translate(128, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, startX, startY, minDim, minDim, 0, 0, 128, 128);
+        ctx.restore();
+      } else {
+        ctx.drawImage(video, startX, startY, minDim, minDim, 0, 0, 128, 128);
+      }
+
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.90);
       const activeCategory = categoryRef.current || "alphabets";
 
       // Send to inference API

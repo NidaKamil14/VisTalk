@@ -96,6 +96,60 @@ export function AuthProvider({ children }) {
     return safeUser;
   };
 
+  const updateProfile = async (newName, newEmail) => {
+    if (!currentUser) throw new Error("No active user session.");
+    const users = getUsers();
+    const normalizedEmail = newEmail.trim().toLowerCase();
+
+    // Check if new email is taken by someone else
+    const emailTaken = users.some(
+      (u) => u.id !== currentUser.id && u.email.toLowerCase() === normalizedEmail
+    );
+    if (emailTaken) {
+      throw new Error("This email is already in use by another account.");
+    }
+
+    const updatedUsers = users.map((u) => {
+      if (u.id === currentUser.id) {
+        return { ...u, name: newName.trim(), email: normalizedEmail };
+      }
+      return u;
+    });
+
+    localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(updatedUsers));
+    const safeUser = {
+      ...currentUser,
+      name: newName.trim(),
+      email: normalizedEmail,
+    };
+    localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(safeUser));
+    setCurrentUser(safeUser);
+    return safeUser;
+  };
+
+  const changePassword = async (oldPassword, newPassword) => {
+    if (!currentUser) throw new Error("No active user session.");
+    const users = getUsers();
+    const userIndex = users.findIndex((u) => u.id === currentUser.id);
+    if (userIndex === -1) throw new Error("User account not found.");
+
+    if (users[userIndex].password && users[userIndex].password !== oldPassword) {
+      throw new Error("Incorrect current password.");
+    }
+
+    users[userIndex].password = newPassword;
+    localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
+    return true;
+  };
+
+  const deleteAccount = async () => {
+    if (!currentUser) return;
+    const users = getUsers();
+    const remainingUsers = users.filter((u) => u.id !== currentUser.id);
+    localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(remainingUsers));
+    logout();
+  };
+
   const logout = () => {
     localStorage.removeItem(STORAGE_SESSION_KEY);
     setCurrentUser(null);
@@ -106,6 +160,9 @@ export function AuthProvider({ children }) {
     isAuthenticated: Boolean(currentUser),
     login,
     signup,
+    updateProfile,
+    changePassword,
+    deleteAccount,
     logout,
   };
 
